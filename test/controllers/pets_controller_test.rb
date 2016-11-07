@@ -37,4 +37,24 @@ class PetsControllerTest < ActionController::TestCase
     body = JSON.parse(response.body)
     assert_equal keys, body.map(&:keys).flatten.uniq.sort
   end
+
+  test "if a specific pet is shown correctly" do
+    get :show, {id: pets(:one)}
+    body = JSON.parse(response.body)
+    assert_equal body["name"], "Peanut"
+  end
+
+  test "if a pet is not in the database, an empty array is returned" do
+    get :show, {id: 100}
+    body = JSON.parse(response.body)
+    assert_empty body
+    assert_response :no_content
+  end
+
+  test "can get #show" do
+    get :show, {id: pets(:one)}
+    assert_response :ok
+    #use "ok" instead of "success" because any response is success even if the pet is not in the database, or even 404 would also be considered as "success"
+  end
+
 end
