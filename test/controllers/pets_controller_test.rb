@@ -57,4 +57,22 @@ class PetsControllerTest < ActionController::TestCase
     #use "ok" instead of "success" because any response is success even if the pet is not in the database, or even 404 would also be considered as "success"
   end
 
+  test "when #create is invoked, a pet is made" do
+    assert_difference('Pet.count', 1) do
+      post :create, {"pet": {"name": "fido", "age": 3, "human": "ada"}}
+    end
+    assert_response :created
+
+    #Check the response
+    assert_match 'application/json', response.header['Content-Type']
+    body = JSON.parse(response.body)
+    assert_instance_of Hash, body
+
+    #check the return database
+    assert_equal 1, body.keys.length
+    assert_equal "id", body.keys.first
+
+    pet_from_database = Pet.find(body["id"])
+    assert_equal pet_data["name"], pet_from_database.name
+  end
 end
